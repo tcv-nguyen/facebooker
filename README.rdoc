@@ -1,28 +1,11 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+* Class PrettyClose is used to build API for Facebook querying.
 
-Things you may want to cover:
+* When a Query is send to the application, that Query will be saved into database. If there are any errors while saving query, the params and urls will be saved into Log table.
 
-* Ruby version
+* The API will process the query one by one through Delayed::Job.
 
-* System dependencies
+* Each Query will create one Response. The Response will store the Query id and request status. If there are any errors during the request, a Log will be created under the Query. We can access these logs through Query#logs.
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+* When the Response has request status ok, it will process the data. All data will be saved into table Block#content. Block#content is hstore data type, which will store all of the data return from Response. From that point, we can process these data through Delayed::Job to other servers.
