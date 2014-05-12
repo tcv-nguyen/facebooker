@@ -47,6 +47,4 @@ group :test do
   gem "rspec-rails", "~> 2.14.2"
 end
 
-gem "rest-graph"
-gem "rest-client", ">= 1.6"
-gem "json"
+gem "koala", "~> 1.8.0rc1"
