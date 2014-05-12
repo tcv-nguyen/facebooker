@@ -1,4 +1,14 @@
 Rails.application.routes.draw do
+
+  scope module: :api do
+    get 'facebook-friends/:facebook_user_id/:auth_token' => 'facebook#facebook_friends'
+    get 'facebook-pages/:search_term/:auth_token' => 'facebook#facebook_pages'
+    get 'facebook-checkins/:facebook_page_id/:auth_token' => 'facebook#facebook_checkins'
+    get 'facebook-checkin-pages/:facebook_user_id/:auth_token' => 'facebook#facebook_checkin_pages'
+    get 'facebook-page-likes/:facebook_page_id/:facebook_user_list/:auth_token' => 'facebook#facebook_page_likes'
+    get 'facebook-page-albums/:facebook_page_id/:auth_token' => 'facebook#facebook_page_albums'
+  end
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
