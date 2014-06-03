@@ -1,3 +1,9 @@
+== Requirements
+
+- Ruby 2.1.1
+- Rails 4.1.1
+- Database PostgreSQL 9.3.3
+
 == Server Setup
 
 1. Clone repository
