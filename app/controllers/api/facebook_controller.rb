@@ -1,41 +1,29 @@
 module Api
   class FacebookController < ApplicationController
-    before_action :build_prettyclose_api
 
-    def facebook_friends
-      @api.process(:get_friends)
-      render json: @api.message
-    end
-
-    def facebook_pages
-      @api.process(:get_pages)
-      render json: @api.message
-    end
-
-    def facebook_checkins
-      @api.process(:get_checkins)
-      render json: @api.message
-    end
-
-    def facebook_checkin_pages
-      @api.process(:get_checkin_pages)
-      render json: @api.message
-    end
-
-    def facebook_page_likes
-      @api.process(:get_page_likes)
-      render json: @api.message
-    end
-
-    def facebook_page_albums
-      @api.process(:get_page_albums)
-      render json: @api.message
+    def process_query
+      begin
+        @api = "PrettyClose::#{params[:query].underscore.camelize}".constantize.new(request, params)
+        @api.steps.each do |step|
+          @api.send(step)
+          @status, @message = *@api.message.flatten
+          if @status == :error
+            @message = "#{step}: #{@message}"
+            break
+          end
+        end
+      rescue Exception => e
+        @api ||= PrettyClose.new(request, params)
+        @status, @message = :error, e.message
+      end
+      create_query_log
+      render json: { @status => @message }
     end
 
   private
 
-    def build_prettyclose_api
-      @api = PrettyClose.new(request, params)
+    def create_query_log
+      Log.create(query_id: @api.try(:query).try(:id), params: params, status: @status, message: @message)
     end
 
   end
