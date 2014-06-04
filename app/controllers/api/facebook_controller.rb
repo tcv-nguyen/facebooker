@@ -3,27 +3,20 @@ module Api
 
     def process_query
       begin
-        @api = "PrettyClose::#{params[:query].underscore.camelize}".constantize.new(request, params)
-        @api.steps.each do |step|
-          @api.send(step)
-          @status, @message = *@api.message.flatten
-          if @status == :error
-            @message = "#{step}: #{@message}"
+        @pc = "PrettyClose::#{params[:query].underscore.camelize}".constantize.new(request, params)
+        @pc.steps.each do |step|
+          @pc.send(step)
+          if @pc.message.has_key?(:error)
+            @pc.message = { error: "#{step}: #{@pc.message[:error]}" }
             break
           end
         end
       rescue Exception => e
-        @api ||= PrettyClose.new(request, params)
-        @status, @message = :error, e.message
+        @pc ||= PrettyClose.new(request, params)
+        @pc.message = { error: e.message }
       end
-      create_query_log
-      render json: { @status => @message }
-    end
-
-  private
-
-    def create_query_log
-      Log.create(query_id: @api.try(:query).try(:id), params: params, status: @status, message: @message)
+      @pc.create_query_log
+      render json: @pc.message
     end
 
   end

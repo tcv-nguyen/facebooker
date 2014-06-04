@@ -9,6 +9,11 @@ class PrettyClose
     build_query
   end
 
+  def create_query_log
+    status, message = *@message.flatten
+    Log.create(query_id: query.try(:id), params: @params, status: status, message: message)
+  end
+
   def create_blocks(data)
     @page_number = 0
     begin
