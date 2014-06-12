@@ -9,6 +9,18 @@ class PrettyClose
     build_query
   end
 
+  def build_query
+    self.query = Query.new(url: @request, status: "new", params: @params)
+    @message = 
+      if query.valid?
+        query.save
+        { success: "Save query successfully." }
+      else
+        errors = query.errors.full_messages.join(". ")
+        { error: errors }
+      end
+  end
+
   def create_query_log
     status, message = *@message.flatten
     Log.create(query_id: query.try(:id), params: @params, status: status, message: message)
@@ -25,6 +37,7 @@ class PrettyClose
 
   def steps
     [
+      :verify_params,
       :build_graph,
       :update_query_status_to_processing,
       :initialize_graph,
@@ -35,16 +48,8 @@ class PrettyClose
     ]
   end
 
-  def build_query
-    self.query = Query.new(url: @request, status: "new", params: @params)
-    @message = 
-      if query.valid?
-        query.save
-        { success: "Save query successfully." }
-      else
-        errors = query.errors.full_messages.join(". ")
-        { error: errors }
-      end
+  def verify_params
+    @message = { error: "cannot be found." }
   end
 
   def build_graph
@@ -54,6 +59,10 @@ class PrettyClose
 
   def update_query_status_to_processing
     update_query(status: :processing, query_type: self.class.to_s)
+  end
+
+  def initialize_graph
+    @message = { error: "cannot be found." }
   end
 
   def create_query_response

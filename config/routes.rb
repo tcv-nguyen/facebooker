@@ -3,7 +3,6 @@ Rails.application.routes.draw do
   scope module: :api do
     get "/*query" => "facebook#process_query"
     
-    # get 'facebook-friends/:facebook_user_id/:auth_token' => 'facebook#facebook_friends'
     # get 'facebook-pages/:search_term/:auth_token' => 'facebook#facebook_pages'
     # get 'facebook-checkins/:facebook_page_id/:auth_token' => 'facebook#facebook_checkins'
     # get 'facebook-checkin-pages/:facebook_user_id/:auth_token' => 'facebook#facebook_checkin_pages'
