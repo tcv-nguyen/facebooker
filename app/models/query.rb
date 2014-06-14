@@ -9,4 +9,12 @@ class Query < ActiveRecord::Base
   scope :processed,   -> { get_status("processed") }
   scope :processing,  -> { get_status("processing") }
 
+  def success?
+    !error?
+  end
+
+  def error?
+    logs.error.any?
+  end
+
 end

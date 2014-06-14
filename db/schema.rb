@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140603041754) do
+ActiveRecord::Schema.define(version: 20140613032000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,5 +64,15 @@ ActiveRecord::Schema.define(version: 20140603041754) do
 
   add_index "responses", ["query_id"], name: "index_responses_on_query_id", using: :btree
   add_index "responses", ["status"], name: "index_responses_on_status", using: :btree
+
+  create_table "transactions", force: true do |t|
+    t.integer  "block_id"
+    t.text     "url"
+    t.hstore   "params"
+    t.hstore   "message"
+    t.string   "status"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end

@@ -1,3 +1,5 @@
+require "net/http"
+
 class PrettyClose
 
   attr_accessor :message, :query, :response
@@ -11,14 +13,7 @@ class PrettyClose
 
   def build_query
     self.query = Query.new(url: @request, status: "new", params: @params)
-    @message = 
-      if query.valid?
-        query.save
-        { success: "Save query successfully." }
-      else
-        errors = query.errors.full_messages.join(". ")
-        { error: errors }
-      end
+    query.save!
   end
 
   def create_query_log
@@ -32,7 +27,6 @@ class PrettyClose
       @page_number += 1
       create_block(data)
     end while (data = data.next_page)
-    @message = { success: "Create response blocks successfully." }
   end
 
   def steps
@@ -44,17 +38,17 @@ class PrettyClose
       :create_query_response,
       :create_query_response_blocks,
       :update_query_response_status_to_processed,
-      :update_query_status_to_processed
+      :update_query_status_to_processed,
+      :send_data_to_pretty_close
     ]
   end
 
   def verify_params
-    @message = { error: "cannot be found." }
+    "need to be defined in its class."
   end
 
   def build_graph
     @graph = ::Koala::Facebook::API.new(@params[:auth_token])
-    @message = { success: "Koala Facebook initialized." }
   end
 
   def update_query_status_to_processing
@@ -62,17 +56,11 @@ class PrettyClose
   end
 
   def initialize_graph
-    @message = { error: "cannot be found." }
+    "need to be defined in its class."
   end
 
   def create_query_response
-    @message = 
-      if query_response = query.create_response(status: :processing)
-        self.response = query_response
-        { success: "Create query response successfully." }
-      else
-        { error: query_response.errors.full_messages.joins(". ") }
-      end
+    self.response = query.create_response!(status: :processing)
   end
 
   def create_query_response_blocks
@@ -80,22 +68,40 @@ class PrettyClose
   end
 
   def update_query_response_status_to_processed
-    response.update_attributes(status: :processed)
+    response.update_attributes!(status: :processed)
   end
 
   def update_query_status_to_processed
     update_query(status: :processed)
   end
 
+  def send_data_to_pretty_close
+    "need to be defined in its class."
+  end
+
+  def graph_get_object(id)
+    begin
+      @graph.get_object(id)
+    rescue Exception => e
+      @query.logs.create!(
+        params: id,
+        status: :error,
+        message: e.message
+      )
+      nil
+    end
+  end
+
+protected
+
+  def prettyclose_server
+    APP_CONFIG["prettyclose_server"]
+  end
+
 private
 
   def update_query(options = {})
-    @message =
-      if query.update_attributes(options)
-        { success: "Update query successfully." }
-      else
-        { error: query.errors.full_messages.join(". ") }
-      end
+    query.update_attributes!(options)
   end
 
   def create_block(data)

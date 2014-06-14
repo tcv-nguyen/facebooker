@@ -5,17 +5,21 @@ module Api
       begin
         @pc = "PrettyClose::#{params[:query].underscore.camelize}".constantize.new(request, params)
         @pc.steps.each do |step|
-          @pc.send(step)
-          if @pc.message.has_key?(:error)
-            @pc.message = { error: "#{step}: #{@pc.message[:error]}" }
+          message = @pc.send(step)
+          if message.class != String || message.blank?
+            @pc.message = { success: step.to_s.titleize }
+            @pc.create_query_log
+          else
+            @pc.message = { error: "#{step}@ #{message}" }
+            @pc.create_query_log
             break
           end
         end
       rescue Exception => e
         @pc ||= PrettyClose.new(request, params)
-        @pc.message = { error: e.message }
+        @pc.message = { error: "Unexpected Exception@ #{e.message}" }
+        @pc.create_query_log
       end
-      @pc.create_query_log
       render json: @pc.message
     end
 

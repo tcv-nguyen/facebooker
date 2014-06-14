@@ -1,7 +1,7 @@
-class Log < ActiveRecord::Base
+class Transaction < ActiveRecord::Base
 
-  belongs_to :query
-
+  belongs_to :block
+  
   scope :success, -> { where(status: :success) }
   scope :error, -> { where(status: :error ) }
   
