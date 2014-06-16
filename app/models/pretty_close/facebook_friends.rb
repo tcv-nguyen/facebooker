@@ -3,6 +3,8 @@ class PrettyClose::FacebookFriends < PrettyClose
   def initialize_graph
     @block_type = "friends"
     @data = @graph.get_connections(@params[:facebook_user_id], "friends")
+    debugger
+    puts "jalla"
   end
 
   def verify_params

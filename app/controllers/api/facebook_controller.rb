@@ -17,7 +17,7 @@ module Api
         end
       rescue Exception => e
         @pc ||= PrettyClose.new(request, params)
-        @pc.message = { error: "Unexpected Exception@ #{e.message}" }
+        @pc.message = { error: "Unexpected Exception@ #{e.message} #{e.backtrace}" }
         @pc.create_query_log
       end
       render json: @pc.message

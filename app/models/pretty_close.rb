@@ -26,7 +26,7 @@ class PrettyClose
     begin
       @page_number += 1
       create_block(data)
-    end while (data = data.next_page)
+    end while ((data.respond_to?(:next_page) ? data = data.next_page : false))
   end
 
   def steps
@@ -118,13 +118,14 @@ private
       status: status,
       block_type: @block_type,
       content: { data: data.to_json },
-      next_page_params: { data: data.next_page_params.try(:to_json) },
+      next_page_params: { data: has_next_page?(data) ? data.next_page_params.try(:to_json) : '' },
       parent_id: @parent_id,
       parent_object: @parent_object
     )
   end
 
   def has_next_page?(data)
+    return false unless data.respond_to?(:next_page)
     data ? !data.next_page_params.blank? : false
   end
 
