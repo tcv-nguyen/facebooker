@@ -4,7 +4,7 @@
 class PrettyClose::FacebookPageNewsfeeds < PrettyClose
 
   def initialize_graph
-    @data = @graph.get_connections(@params[:facebook_page_id], "feed?fields=id,name").first
+    @data = @graph.get_connections(@params[:facebook_page_id], "feed?fields=id,name,link&limit=1").first
     @block_type = "feed"
     @message = {success: "Initialize Facebook Page Feeds."}
   end
@@ -25,8 +25,8 @@ class PrettyClose::FacebookPageNewsfeeds < PrettyClose
   
   def generate_params_to_send
     {
-      "facebook_id" => @params[:facebook_page_id],
-      "facebook_post" => @data
+      "facebook_page_id" => @params[:facebook_page_id],
+      "facebook_post" => @data.to_json
     }
   end
 
