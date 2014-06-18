@@ -44,7 +44,7 @@ class PrettyClose
   end
 
   def verify_params
-    "need to be defined in its class."
+    return "Invalid params." if required_params.select{ |param| @params[param].blank? }.any?
   end
 
   def build_graph

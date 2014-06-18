@@ -7,8 +7,8 @@ class PrettyClose::FacebookFriends < PrettyClose
     puts "jalla"
   end
 
-  def verify_params
-    return "Invalid params." if required_params.select{ |param| @params[param].blank? }.any?
+  def required_params
+    [:auth_token, :facebook_user_id]
   end
 
   def send_data_to_pretty_close
@@ -25,30 +25,28 @@ class PrettyClose::FacebookFriends < PrettyClose
         begin
           req = Net::HTTP.post_form(URI.parse(url), @params_to_send)
           res = JSON.parse(req.body)
-          block.transactions.create!(
+          @query.transactions.create!(
             url:      url,
             params:   @params_to_send,
             message:  res,
-            status:   (res["success"].to_s == "true" ? :success : :error)
+            status:   (res["success"].to_s == "true" ? :success : :error),
+            block_id: block.id
           )
         rescue Exception => e
-          block.transactions.create!(
+          @query.transactions.create(
             url:      url,
             params:   @params_to_send,
             message:  { exception: e.message },
-            status:   :error
+            status:   :error,
+            block_id: block.id
           )
-          { error: e.message }
+          return e.message
         end
       end
     end
   end
 
 private
-
-  def required_params
-    [:auth_token, :facebook_user_id]
-  end
 
   def url
     "#{prettyclose_server}/api/v1/internal/facebook_friends"
